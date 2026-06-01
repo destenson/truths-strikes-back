@@ -34,6 +34,7 @@ async function fetchFeed(url) {
     try {
       const adapterResponse = await fetch(adaptedUrl);
       if (!adapterResponse.ok) {
+        console.warn(`Feed adapter failed for ${adaptedUrl} with status ${adapterResponse.status}`);
         continue;
       }
       const adapterData = await adapterResponse.json();
@@ -47,7 +48,7 @@ async function fetchFeed(url) {
         return adapterTruths;
       }
     } catch (error) {
-      console.warn("Feed adapter failed", error);
+      console.warn(`Feed adapter failed for ${adaptedUrl}`, error);
     }
   }
 
