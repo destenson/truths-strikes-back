@@ -41,7 +41,7 @@ async function fetchFeed(url) {
         ? adapterData.items
         : [];
       const adapterTruths = adapterItems
-        .map((item) => extractTextFromHtml(item.title || ""))
+        .map((item) => extractTextFromHtml(item.description || item.title || ""))
         .filter(Boolean)
         .slice(0, MAX_TRUTHS_COUNT);
       if (adapterTruths.length > 0) {
