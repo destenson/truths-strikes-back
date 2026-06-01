@@ -5,4 +5,4 @@ Trump's Truths in the style of Star Wars
 
 Open `index.html` in a browser.
 
-The page tries to load the latest posts from `@realDonaldTrump` on Truth Social via the Truth Social API first, then falls back to RSS feeds if API requests fail, and presents them in a Star Wars-style crawl over a moving starfield.
+The page tries to load the latest posts from `@realDonaldTrump` on Truth Social via RSS feeds (including JSON feed adapters for browser compatibility), and presents them in a Star Wars-style crawl over a moving starfield.
