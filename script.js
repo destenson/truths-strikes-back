@@ -171,5 +171,9 @@ function drawStars() {
   tick();
 }
 
-drawStars();
+if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  document.getElementById("stars").style.display = "none";
+} else {
+  drawStars();
+}
 loadTruths();

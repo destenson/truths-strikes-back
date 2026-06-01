@@ -73,3 +73,17 @@ h1 {
     opacity: 0;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .crawl-wrap {
+    perspective: none;
+    align-items: center;
+    overflow: auto;
+    padding: 2rem 1rem;
+  }
+
+  .crawl {
+    animation: none;
+    transform: none;
+  }
+}
