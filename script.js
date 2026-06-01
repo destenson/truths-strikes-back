@@ -7,6 +7,10 @@ const feedProxies = [
   (url) => url,
   (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
 ];
+const STAR_COUNT = 350;
+const MIN_STAR_SPEED = 0.2;
+const STAR_SPEED_RANGE = 1.1;
+const MAX_STAR_SIZE = 1.6;
 
 function toParagraph(text) {
   const p = document.createElement("p");
@@ -21,11 +25,16 @@ function updateCrawl(lines) {
 }
 
 async function fetchFeed(url) {
-  let response;
+  let response = null;
   for (const proxyUrl of feedProxies) {
-    response = await fetch(proxyUrl(url));
-    if (response.ok) {
-      break;
+    try {
+      const candidateResponse = await fetch(proxyUrl(url));
+      if (candidateResponse.ok) {
+        response = candidateResponse;
+        break;
+      }
+    } catch (error) {
+      console.warn(`Feed request failed for ${proxyUrl(url)}`, error);
     }
   }
   if (!response || !response.ok) {
@@ -105,8 +114,8 @@ async function loadTruths() {
 function drawStars() {
   const canvas = document.getElementById("stars");
   const ctx = canvas.getContext("2d");
-  const count = 350;
   const stars = [];
+  let resizeTimer = null;
 
   function resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -120,14 +129,14 @@ function drawStars() {
   function resetStar(star) {
     star.x = Math.random() * window.innerWidth;
     star.y = Math.random() * window.innerHeight;
-    star.speed = 0.2 + Math.random() * 1.1;
-    star.size = Math.random() * 1.6;
+    star.speed = MIN_STAR_SPEED + Math.random() * STAR_SPEED_RANGE;
+    star.size = Math.random() * MAX_STAR_SIZE;
   }
 
   function init() {
     resize();
     stars.length = 0;
-    for (let i = 0; i < count; i += 1) {
+    for (let i = 0; i < STAR_COUNT; i++) {
       const star = {};
       resetStar(star);
       stars.push(star);
@@ -142,7 +151,7 @@ function drawStars() {
     for (const star of stars) {
       star.y += star.speed;
       if (star.y > window.innerHeight) {
-        star.y = 0;
+        star.y = -star.size;
         star.x = Math.random() * window.innerWidth;
       }
       ctx.beginPath();
@@ -152,7 +161,12 @@ function drawStars() {
     requestAnimationFrame(tick);
   }
 
-  window.addEventListener("resize", init);
+  window.addEventListener("resize", () => {
+    if (resizeTimer) {
+      clearTimeout(resizeTimer);
+    }
+    resizeTimer = setTimeout(init, 100);
+  });
   init();
   tick();
 }
