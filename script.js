@@ -14,6 +14,7 @@ const STAR_COUNT = 350;
 const MIN_STAR_SPEED = 0.2;
 const STAR_SPEED_RANGE = 1.1;
 const MAX_STAR_SIZE = 1.6;
+const MAX_TRUTHS_COUNT = 8;
 
 function toParagraph(text) {
   const p = document.createElement("p");
@@ -28,9 +29,9 @@ function updateCrawl(lines) {
 }
 
 async function fetchFeed(url) {
-  for (const adapterUrl of jsonFeedAdapters) {
+  for (const adapter of jsonFeedAdapters) {
     try {
-      const adapterResponse = await fetch(adapterUrl(url));
+      const adapterResponse = await fetch(adapter(url));
       if (!adapterResponse.ok) {
         continue;
       }
@@ -41,12 +42,12 @@ async function fetchFeed(url) {
       const adapterTruths = adapterItems
         .map((item) => extractTextFromHtml(item.title || ""))
         .filter(Boolean)
-        .slice(0, 8);
+        .slice(0, MAX_TRUTHS_COUNT);
       if (adapterTruths.length > 0) {
         return adapterTruths;
       }
     } catch (error) {
-      console.warn(`Feed adapter request failed for ${adapterUrl(url)}`, error);
+      console.warn(`Feed adapter request failed for ${adapter(url)}`, error);
     }
   }
 
@@ -75,7 +76,7 @@ async function fetchFeed(url) {
     .map((node) => node.textContent || "")
     .map((text) => text.trim())
     .filter(Boolean)
-    .slice(0, 8);
+    .slice(0, MAX_TRUTHS_COUNT);
 }
 
 function extractTextFromHtml(html) {
