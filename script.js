@@ -41,14 +41,14 @@ async function fetchFeed(url) {
         ? adapterData.items
         : [];
       const adapterTruths = adapterItems
-        .map((item) => extractTextFromHtml(item.description || item.title || ""))
+        .map((item) => extractTextFromHtml(getAdapterItemText(item)))
         .filter(Boolean)
         .slice(0, MAX_TRUTHS_COUNT);
       if (adapterTruths.length > 0) {
         return adapterTruths;
       }
     } catch (error) {
-      console.warn(`Feed adapter request failed for ${adaptedUrl}`, error);
+      console.warn(`Feed adapter failed for ${adaptedUrl}`, error);
     }
   }
 
@@ -83,6 +83,15 @@ async function fetchFeed(url) {
 function extractTextFromHtml(html) {
   const doc = new DOMParser().parseFromString(html, "text/html");
   return (doc.body.textContent || "").replace(/\s+/g, " ").trim();
+}
+
+function getAdapterItemText(item) {
+  if (!item || typeof item !== "object") {
+    return "";
+  }
+  const description = typeof item.description === "string" ? item.description : "";
+  const title = typeof item.title === "string" ? item.title : "";
+  return description || title;
 }
 
 async function loadTruths() {
