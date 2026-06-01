@@ -30,8 +30,9 @@ function updateCrawl(lines) {
 
 async function fetchFeed(url) {
   for (const adapter of jsonFeedAdapters) {
+    const adaptedUrl = adapter(url);
     try {
-      const adapterResponse = await fetch(adapter(url));
+      const adapterResponse = await fetch(adaptedUrl);
       if (!adapterResponse.ok) {
         continue;
       }
@@ -47,7 +48,7 @@ async function fetchFeed(url) {
         return adapterTruths;
       }
     } catch (error) {
-      console.warn(`Feed adapter request failed for ${adapter(url)}`, error);
+      console.warn(`Feed adapter request failed for ${adaptedUrl}`, error);
     }
   }
 
