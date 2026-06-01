@@ -38,17 +38,16 @@ async function fetchFeed(url) {
       }
       const adapterData = await adapterResponse.json();
       const adapterItems = Array.isArray(adapterData?.items)
-        ? adapterData.items
+        ? adapterData.items.slice(0, MAX_TRUTHS_COUNT)
         : [];
       const adapterTruths = adapterItems
         .map((item) => extractTextFromHtml(getAdapterItemText(item)))
-        .filter(Boolean)
-        .slice(0, MAX_TRUTHS_COUNT);
+        .filter(Boolean);
       if (adapterTruths.length > 0) {
         return adapterTruths;
       }
     } catch (error) {
-      console.warn(`Feed adapter failed for ${adaptedUrl}`, error);
+      console.warn("Feed adapter failed", error);
     }
   }
 
