@@ -64,6 +64,21 @@ def main():
         "source": FEED_URL,
         "posts": posts,
     }
+
+    # Skip the write when only generated_at would change, so CI doesn't
+    # produce a no-op commit on every run. Compare everything except the
+    # timestamp.
+    if OUTPUT_PATH.exists():
+        try:
+            existing = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            existing = None
+        if existing is not None and {
+            k: v for k, v in existing.items() if k != "generated_at"
+        } == {k: v for k, v in payload.items() if k != "generated_at"}:
+            print(f"No changes since last fetch; leaving {OUTPUT_PATH} untouched.")
+            return 0
+
     OUTPUT_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Wrote {len(posts)} posts to {OUTPUT_PATH}")
     return 0
