@@ -59,7 +59,7 @@ h1 {
 
 #crawl-lines p {
   margin: 0 0 1.8rem;
-  font-size: clamp(1rem, 2.8vw, 2rem);
+  font-size: clamp(1.4rem, 4vw, 3rem);
   line-height: 1.4;
 }
 

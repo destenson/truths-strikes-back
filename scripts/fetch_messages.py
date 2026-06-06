@@ -18,7 +18,7 @@ from pathlib import Path
 
 FEED_URL = "https://trumpstruth.org/feed"
 OUTPUT_PATH = Path(__file__).resolve().parent.parent / "messages.json"
-POST_COUNT = 8
+POST_COUNT = 10
 REQUEST_TIMEOUT_SECONDS = 30
 # trumpstruth.org returns the app shell instead of the feed to an empty
 # User-Agent, so identify as a normal browser.
