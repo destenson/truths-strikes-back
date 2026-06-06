@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch the latest Trump Truth Social posts and write them to truths.json.
+"""Fetch the latest Trump Truth Social posts and write them to messages.json.
 
 Reads the public archive RSS feed at trumpstruth.org (Truth Social itself
 serves no usable feed and blocks cross-origin reads). Runs server-side in CI
@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 FEED_URL = "https://trumpstruth.org/feed"
-OUTPUT_PATH = Path(__file__).resolve().parent.parent / "truths.json"
+OUTPUT_PATH = Path(__file__).resolve().parent.parent / "messages.json"
 POST_COUNT = 8
 REQUEST_TIMEOUT_SECONDS = 30
 # trumpstruth.org returns the app shell instead of the feed to an empty

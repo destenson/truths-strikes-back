@@ -1,6 +1,6 @@
-name: Update Truths
+name: Update Messages
 
-# Refreshes truths.json from the public archive feed and commits it so the
+# Refreshes messages.json from the public archive feed and commits it so the
 # static GitHub Pages site can read the data same-origin (no CORS, no
 # client-side third-party requests).
 
@@ -15,7 +15,7 @@ permissions:
 
 # Avoid overlapping runs racing to commit.
 concurrency:
-  group: update-truths
+  group: update-messages
   cancel-in-progress: false
 
 jobs:
@@ -24,17 +24,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch latest truths
-        run: python3 scripts/fetch_truths.py
+      - name: Fetch latest messages
+        run: python3 scripts/fetch_messages.py
 
       - name: Commit if changed
         run: |
-          if [ -z "$(git status --porcelain -- truths.json)" ]; then
-            echo "No changes to truths.json."
+          if [ -z "$(git status --porcelain -- messages.json)" ]; then
+            echo "No changes to messages.json."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add truths.json
-          git commit -m "chore: update truths.json"
+          git add messages.json
+          git commit -m "chore: update messages.json"
           git push

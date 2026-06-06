@@ -1,7 +1,7 @@
-// Posts are pre-fetched server-side by .github/workflows/update-truths.yml and
-// committed to truths.json, so this read is same-origin — no CORS, no reliance
+// Posts are pre-fetched server-side by .github/workflows/update-messages.yml and
+// committed to messages.json, so this read is same-origin — no CORS, no reliance
 // on a third-party request succeeding at page load.
-const TRUTHS_PATH = "./truths.json";
+const MESSAGES_PATH = "./messages.json";
 const STAR_COUNT = 350;
 const MIN_STAR_SPEED = 0.2;
 const STAR_SPEED_RANGE = 1.1;
@@ -19,25 +19,25 @@ function updateCrawl(lines) {
   lines.forEach((line) => container.appendChild(toParagraph(line)));
 }
 
-async function loadTruths() {
+async function loadMessages() {
   try {
     // Cache-bust so the GitHub Pages CDN doesn't serve a stale copy after the
     // workflow commits an update.
-    const response = await fetch(`${TRUTHS_PATH}?t=${Date.now()}`);
+    const response = await fetch(`${MESSAGES_PATH}?t=${Date.now()}`);
     if (!response.ok) {
       throw new Error(`Request failed (${response.status})`);
     }
     const data = await response.json();
     const posts = Array.isArray(data.posts) ? data.posts : [];
-    const truths = posts
+    const messages = posts
       .map((post) => (post.text || "").trim())
       .filter(Boolean);
-    if (truths.length > 0) {
-      updateCrawl(truths);
+    if (messages.length > 0) {
+      updateCrawl(messages);
       return;
     }
   } catch (error) {
-    console.warn("Could not load truths.json", error);
+    console.warn("Could not load messages.json", error);
   }
   updateCrawl([
     "Unable to load live Truth Social posts right now.",
@@ -110,4 +110,4 @@ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 } else {
   drawStars();
 }
-loadTruths();
+loadMessages();
