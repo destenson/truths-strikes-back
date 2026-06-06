@@ -22,6 +22,7 @@ function midiToFrequency(midi) {
   return A4_FREQUENCY_HZ * Math.pow(2, (midi - A4_MIDI) / 12);
 }
 
+// TODO: add several melodies that play randomly. They should all sound ominous and dramatic, but different enough to be interesting over multiple loops.
 // Original brass melody as [beatOffset, midiNote, durationBeats] within the loop.
 const MELODY = [
   [0, 62, 1], [1, 62, 1], [2, 65, 1], [3, 64, 1],
