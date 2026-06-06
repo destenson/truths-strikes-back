@@ -87,14 +87,14 @@ h1 {
    toward the vanishing point. */
 @keyframes crawl {
   0% {
-    transform: rotateX(62deg) translateY(90vh);
+    transform: rotateX(72deg) translateY(90vh);
     opacity: 1;
   }
   80% {
     opacity: 1;
   }
   100% {
-    transform: rotateX(62deg) translateY(-320vh);
+    transform: rotateX(72deg) translateY(-320vh);
     opacity: 0;
   }
 }
