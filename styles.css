@@ -46,7 +46,8 @@ body {
   text-align: center;
   transform-origin: 50% 100%;
   animation: crawl 130s linear infinite;
-  padding-top: 40vh; /* Start off-screen at the bottom. */
+  padding-top: 40vh;
+  /* Start off-screen at the bottom. */
 }
 
 .episode {
@@ -94,7 +95,7 @@ h1 {
    and recedes; the loop repeats from the bottom. */
 @keyframes crawl {
   from {
-    transform: rotateX(72deg) translateY(280vh) translateZ(0);
+    transform: rotateX(72deg) translateY(360vh) translateZ(0);
   }
 
   to {
