@@ -93,10 +93,10 @@ h1 {
    and recedes; the loop repeats from the bottom. */
 @keyframes crawl {
   from {
-    transform: rotateX(72deg) translateY(0) translateZ(0);
+    transform: rotateX(72deg) translateY(45vh) translateZ(0);
   }
   to {
-    transform: rotateX(72deg) translateY(-200vh) translateZ(-60vh);
+    transform: rotateX(72deg) translateY(-210vh) translateZ(-60vh);
   }
 }
 
