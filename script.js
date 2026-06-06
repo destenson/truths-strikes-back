@@ -3,9 +3,13 @@
 // on a third-party request succeeding at page load.
 const MESSAGES_PATH = "./messages.json";
 const STAR_COUNT = 350;
-const MIN_STAR_SPEED = 0.2;
-const STAR_SPEED_RANGE = 1.1;
-const MAX_STAR_SIZE = 1.6;
+// Stars travel along the view axis (depth) toward the camera, so they radiate
+// outward from the center vanishing point — motion parallel to the view rather
+// than drifting across the screen plane.
+const STAR_NEAR_DEPTH = 0.2; // closest a star gets before it's recycled
+const STAR_FAR_DEPTH = 4.0; // spawn depth, near the vanishing point
+const STAR_SPEED = 0.01; // depth units travelled per frame
+const MAX_STAR_SIZE = 2.4; // size at the near plane; shrinks with distance
 
 function toParagraph(text) {
   const p = document.createElement("p");
@@ -50,6 +54,8 @@ function drawStars() {
   const ctx = canvas.getContext("2d");
   const stars = [];
   let resizeTimer = null;
+  let centerX = 0;
+  let centerY = 0;
 
   function resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -58,13 +64,16 @@ function drawStars() {
     canvas.style.width = `${window.innerWidth}px`;
     canvas.style.height = `${window.innerHeight}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    centerX = window.innerWidth / 2;
+    centerY = window.innerHeight / 2;
   }
 
-  function resetStar(star) {
-    star.x = Math.random() * window.innerWidth;
-    star.y = Math.random() * window.innerHeight;
-    star.speed = MIN_STAR_SPEED + Math.random() * STAR_SPEED_RANGE;
-    star.size = Math.random() * MAX_STAR_SIZE;
+  function resetStar(star, depth) {
+    // World x/y are normalized to [-1, 1]; the perspective divide by depth maps
+    // them onto the screen, so a fresh far star sits near the center.
+    star.x = Math.random() * 2 - 1;
+    star.y = Math.random() * 2 - 1;
+    star.z = depth;
   }
 
   function init() {
@@ -72,7 +81,8 @@ function drawStars() {
     stars.length = 0;
     for (let i = 0; i < STAR_COUNT; i++) {
       const star = {};
-      resetStar(star);
+      // Distribute initial depths across the field so they don't pulse in waves.
+      resetStar(star, STAR_NEAR_DEPTH + Math.random() * (STAR_FAR_DEPTH - STAR_NEAR_DEPTH));
       stars.push(star);
     }
   }
@@ -83,13 +93,19 @@ function drawStars() {
     ctx.fillStyle = "#fff";
 
     for (const star of stars) {
-      star.y += star.speed;
-      if (star.y > window.innerHeight) {
-        star.y = -star.size;
-        star.x = Math.random() * window.innerWidth;
+      star.z -= STAR_SPEED;
+      if (star.z <= STAR_NEAR_DEPTH) {
+        resetStar(star, STAR_FAR_DEPTH);
       }
+      const scale = 1 / star.z;
+      const screenX = centerX + star.x * centerX * scale;
+      const screenY = centerY + star.y * centerY * scale;
+      if (screenX < 0 || screenX > window.innerWidth || screenY < 0 || screenY > window.innerHeight) {
+        continue;
+      }
+      const size = (MAX_STAR_SIZE * STAR_NEAR_DEPTH) / star.z;
       ctx.beginPath();
-      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      ctx.arc(screenX, screenY, Math.max(size, 0.2), 0, Math.PI * 2);
       ctx.fill();
     }
     requestAnimationFrame(tick);

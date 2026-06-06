@@ -29,7 +29,7 @@ body {
 .crawl-wrap {
   position: absolute;
   inset: 0;
-  perspective: 500px;
+  perspective: 350px;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -82,16 +82,19 @@ h1 {
   outline: none;
 }
 
+/* The high rotateX lays the text plane back so it's shallow against the view;
+   translateY then runs it up that tilted plane, where perspective shrinks it
+   toward the vanishing point. */
 @keyframes crawl {
   0% {
-    transform: rotateX(25deg) translateY(55vh) translateZ(0);
+    transform: rotateX(62deg) translateY(90vh);
     opacity: 1;
   }
-  85% {
+  80% {
     opacity: 1;
   }
   100% {
-    transform: rotateX(25deg) translateY(-240vh) translateZ(-500px);
+    transform: rotateX(62deg) translateY(-320vh);
     opacity: 0;
   }
 }
