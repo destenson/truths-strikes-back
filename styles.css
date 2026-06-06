@@ -30,17 +30,19 @@ body {
   position: absolute;
   inset: 0;
   perspective: 60vh;
-  /* Raise the vanishing point to ~75% up from the bottom (25% down from the
-     top) instead of the default screen center, matching the Star Wars crawl. */
+  /* Vanishing point ~25% down from the top, like the Star Wars crawl. */
   perspective-origin: 50% 25%;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  /* Dissolve the receded text into the distance toward the vanishing point. */
+  -webkit-mask-image: linear-gradient(to top, #000 45%, rgba(0, 0, 0, 0.25) 72%, transparent 92%);
+  mask-image: linear-gradient(to top, #000 45%, rgba(0, 0, 0, 0.25) 72%, transparent 92%);
 }
 
 .crawl {
-  width: min(80vw, 900px);
+  width: min(92vw, 1100px);
   text-align: center;
   transform-origin: 50% 100%;
   animation: crawl 80s linear infinite;
@@ -85,28 +87,16 @@ h1 {
   outline: none;
 }
 
-/* The high rotateX lays the text plane back so it's shallow against the view;
-   translateY runs it up that tilted plane while translateZ pushes it away, so
-   it shrinks toward the vanishing point. The perspective origin sits at the
-   screen center, so the far end can't actually leave the frame — instead the
-   crawl fades in at the start and out at the end. Both keyframe ends are
-   opacity:0, which makes the loop seam invisible (no "already displayed" pop
-   on restart) regardless of window or content size. Distances are in vh and
-   opacity is unitless, so nothing assumes a fixed viewport. */
+/* Tilt the plane back with rotateX and run it up with translateY toward the
+   vanishing point, pushing it away with translateZ so it shrinks. The mask
+   dissolves it into the distance near the top. Text enters at the bottom, rises,
+   and recedes; the loop repeats from the bottom. */
 @keyframes crawl {
-  0% {
-    transform: rotateX(72deg) translateY(90vh);
-    opacity: 0;
+  from {
+    transform: rotateX(72deg) translateY(0) translateZ(0);
   }
-  6% {
-    opacity: 1;
-  }
-  82% {
-    opacity: 1;
-  }
-  100% {
+  to {
     transform: rotateX(72deg) translateY(-200vh) translateZ(-60vh);
-    opacity: 0;
   }
 }
 
@@ -116,9 +106,12 @@ h1 {
     align-items: center;
     overflow: auto;
     padding: 2rem 1rem;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 
   .crawl {
+    position: static;
     animation: none;
     transform: none;
   }
