@@ -7,10 +7,14 @@ const feedProxies = [
   (url) => url,
   (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
 ];
+const jsonFeedAdapters = [
+  (url) => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`,
+];
 const STAR_COUNT = 350;
 const MIN_STAR_SPEED = 0.2;
 const STAR_SPEED_RANGE = 1.1;
 const MAX_STAR_SIZE = 1.6;
+const MAX_TRUTHS_COUNT = 8;
 
 function toParagraph(text) {
   const p = document.createElement("p");
@@ -25,6 +29,29 @@ function updateCrawl(lines) {
 }
 
 async function fetchFeed(url) {
+  for (const adapter of jsonFeedAdapters) {
+    const adaptedUrl = adapter(url);
+    try {
+      const adapterResponse = await fetch(adaptedUrl);
+      if (!adapterResponse.ok) {
+        console.warn(`Feed adapter failed for ${adaptedUrl} with status ${adapterResponse.status}`);
+        continue;
+      }
+      const adapterData = await adapterResponse.json();
+      const adapterItems = Array.isArray(adapterData?.items)
+        ? adapterData.items.slice(0, MAX_TRUTHS_COUNT)
+        : [];
+      const adapterTruths = adapterItems
+        .map((item) => extractTextFromHtml(getAdapterItemText(item)))
+        .filter(Boolean);
+      if (adapterTruths.length > 0) {
+        return adapterTruths;
+      }
+    } catch (error) {
+      console.warn(`Feed adapter failed for ${adaptedUrl}`, error);
+    }
+  }
+
   let response = null;
   for (const proxyUrl of feedProxies) {
     try {
@@ -50,7 +77,7 @@ async function fetchFeed(url) {
     .map((node) => node.textContent || "")
     .map((text) => text.trim())
     .filter(Boolean)
-    .slice(0, 8);
+    .slice(0, MAX_TRUTHS_COUNT);
 }
 
 function extractTextFromHtml(html) {
@@ -58,42 +85,16 @@ function extractTextFromHtml(html) {
   return (doc.body.textContent || "").replace(/\s+/g, " ").trim();
 }
 
-async function fetchTruthsFromApi() {
-  const lookupResponse = await fetch(
-    `https://truthsocial.com/api/v1/accounts/lookup?acct=${TRUTH_USERNAME}`,
-  );
-  if (!lookupResponse.ok) {
-    throw new Error(`Lookup failed (${lookupResponse.status})`);
+function getAdapterItemText(item) {
+  if (!item || typeof item !== "object") {
+    return "";
   }
-  const account = await lookupResponse.json();
-  if (!account.id) {
-    throw new Error("Lookup returned no account ID");
-  }
-
-  const statusesResponse = await fetch(
-    `https://truthsocial.com/api/v1/accounts/${account.id}/statuses?exclude_replies=true&exclude_reblogs=true&limit=8`,
-  );
-  if (!statusesResponse.ok) {
-    throw new Error(`Statuses failed (${statusesResponse.status})`);
-  }
-  const statuses = await statusesResponse.json();
-  return statuses
-    .map((status) => extractTextFromHtml(status.content || ""))
-    .filter(Boolean)
-    .slice(0, 8);
+  const description = typeof item.description === "string" ? item.description : "";
+  const title = typeof item.title === "string" ? item.title : "";
+  return description || title;
 }
 
 async function loadTruths() {
-  try {
-    const truths = await fetchTruthsFromApi();
-    if (truths.length > 0) {
-      updateCrawl(truths);
-      return;
-    }
-  } catch (error) {
-    console.warn("Could not load truths from API", error);
-  }
-
   for (const url of feedCandidates) {
     try {
       const truths = await fetchFeed(url);
