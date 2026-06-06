@@ -28,6 +28,7 @@ jobs:
         run: python3 scripts/fetch_truths.py
 
       - name: Commit if changed
+        run: |
           if [ -z "$(git status --porcelain -- truths.json)" ]; then
             echo "No changes to truths.json."
             exit 0
