@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fetch the latest Trump Truth Social posts and write them to messages.json.
 
-Reads the public archive RSS feed at trumpstruth.org (Truth Social itself
+Reads the public feed at trumpstruth.org (Truth Social itself
 serves no usable feed and blocks cross-origin reads). Runs server-side in CI
 so the browser never makes a cross-origin request — the page just reads the
 committed JSON same-origin.
@@ -9,7 +9,9 @@ committed JSON same-origin.
 Standard library only: no third-party dependencies to audit or pin.
 """
 
+import html
 import json
+import re
 import sys
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -31,16 +33,35 @@ def fetch_feed(url):
         return response.read()
 
 
+def strip_html(raw):
+    """Strip HTML tags and decode entities, returning plain text."""
+    text = re.sub(r"<[^>]+>", " ", raw)
+    text = html.unescape(text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def parse_posts(feed_bytes, limit):
     root = ET.fromstring(feed_bytes)
     posts = []
     for item in root.iterfind("./channel/item"):
         title = (item.findtext("title") or "").strip()
-        if not title:
+        description_html = (item.findtext("description") or "").strip()
+        description_text = strip_html(description_html)
+
+        if title.startswith("[No Title]"):
+            # The feed uses [No Title] as a placeholder when there's no text —
+            # fall back to description. If that's also empty it's image/video
+            # only and there's nothing worth showing in the crawl.
+            text = description_text
+        else:
+            text = title or description_text
+
+        if not text:
             continue
+
         posts.append(
             {
-                "text": title,
+                "text": text,
                 "url": (item.findtext("link") or "").strip(),
                 "date": (item.findtext("pubDate") or "").strip(),
             }
