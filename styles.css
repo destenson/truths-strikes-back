@@ -60,6 +60,28 @@ h1 {
   line-height: 1.4;
 }
 
+.sound-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  padding: 0.5rem 0.9rem;
+  font-family: inherit;
+  font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+  letter-spacing: 0.08em;
+  color: #ffe81f;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #ffe81f;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+  background: rgba(255, 232, 31, 0.15);
+  outline: none;
+}
+
 @keyframes crawl {
   0% {
     transform: rotateX(25deg) translateY(55vh) translateZ(0);
