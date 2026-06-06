@@ -94,11 +94,10 @@ h1 {
    a multiple of the text's own height, so it holds for any viewport or length. */
 @keyframes crawl {
   from {
-    transform: rotateX(72deg) translateY(100vh) scale(1.1);
+    transform: translateY(100vh) scale(1.1);
   }
-
   to {
-    transform: rotateX(72deg) translateY(-120%) scale(0.0);
+    transform: translateY(-120%) scale(0.5);
   }
 }
 
