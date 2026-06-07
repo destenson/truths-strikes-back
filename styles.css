@@ -32,8 +32,9 @@ body {
   inset: 0;
   perspective: calc(var(--app-vh, 1vh) * 60);
   -webkit-perspective: calc(var(--app-vh, 1vh) * 60);
-  /* Vanishing point ~15% down from the top, like the Star Wars crawl. */
-  perspective-origin: 50% 15%;
+  /* Keep the vanishing point low enough that crawl text remains visible on
+      phone-sized viewports at animation start. */
+  perspective-origin: 50% 25%;
   overflow: hidden;
   display: flex;
   justify-content: center;
