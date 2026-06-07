@@ -32,8 +32,8 @@ body {
   inset: 0;
   perspective: calc(var(--app-vh, 1vh) * 60);
   -webkit-perspective: calc(var(--app-vh, 1vh) * 60);
-  /* Vanishing point ~25% down from the top, like the Star Wars crawl. */
-  perspective-origin: 50% 25%;
+  /* Vanishing point ~15% down from the top, like the Star Wars crawl. */
+  perspective-origin: 50% 15%;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -49,10 +49,10 @@ html.ios-safari .crawl-wrap {
 }
 
 .crawl {
-  width: min(92vw, 1100px);
+  width: min(92vw, 1800px);
   text-align: center;
   transform-origin: 50% 100%;
-  animation: crawl 130s linear infinite;
+  animation: crawl 180s linear infinite;
   padding-top: 40vh;
   transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
@@ -106,11 +106,11 @@ h1 {
    and recedes; the loop repeats from the bottom. */
 @keyframes crawl {
   from {
-    transform: rotateX(72deg) translate3d(0, calc(var(--app-vh, 1vh) * 140), 0);
+    transform: rotateX(72deg) translateY(550vh) translateZ(0vh);
   }
 
   to {
-    transform: rotateX(72deg) translate3d(0, calc(var(--app-vh, 1vh) * -240), calc(var(--app-vh, 1vh) * -60));
+    transform: rotateX(72deg) translateY(-210vh) translateZ(-60vh);
   }
 }
 
@@ -120,6 +120,7 @@ h1 {
     align-items: center;
     overflow: auto;
     padding: 2rem 1rem;
+    animation: none;
     -webkit-mask-image: none;
     mask-image: none;
   }
