@@ -53,6 +53,7 @@ html.ios-safari .crawl-wrap {
   text-align: center;
   transform-origin: 50% 100%;
   animation: crawl 180s linear infinite;
+  -webkit-animation: crawl 180s linear infinite;
   padding-top: 40vh;
   transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
@@ -111,6 +112,41 @@ h1 {
 
   to {
     transform: rotateX(72deg) translateY(-210vh) translateZ(-60vh);
+  }
+}
+
+@-webkit-keyframes crawl {
+  from {
+    transform: rotateX(72deg) translateY(550vh) translateZ(0vh);
+  }
+
+  to {
+    transform: rotateX(72deg) translateY(-210vh) translateZ(-60vh);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .crawl-wrap {
+    perspective: none;
+    -webkit-perspective: none;
+    align-items: flex-start;
+    overflow: auto;
+    padding: 4rem 1rem 2rem;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .crawl {
+    width: min(94vw, 820px);
+    padding-top: 0;
+    animation: none;
+    -webkit-animation: none;
+    transform: none;
+  }
+
+  #crawl-lines p {
+    font-size: clamp(1.05rem, 5.4vw, 1.65rem);
+    line-height: 1.5;
   }
 }
 
