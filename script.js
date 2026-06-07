@@ -11,6 +11,23 @@ const STAR_FAR_DEPTH = 4.0; // spawn depth, near the vanishing point
 const STAR_SPEED = 0.01; // depth units travelled per frame
 const MAX_STAR_SIZE = 2.4; // size at the near plane; shrinks with distance
 
+function syncViewportUnit() {
+  // iOS Safari's dynamic browser chrome makes vh unreliable for long-running
+  // transforms; pin layout math to the current innerHeight instead.
+  const unit = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty("--app-vh", `${unit}px`);
+}
+
+function applyIosSafariFallback() {
+  const ua = navigator.userAgent;
+  const isIOS = /iP(ad|hone|od)/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isWebKit = /WebKit/i.test(ua);
+  const isOtherIOSBrowser = /CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua);
+  if (isIOS && isWebKit && !isOtherIOSBrowser) {
+    document.documentElement.classList.add("ios-safari");
+  }
+}
+
 function toParagraph(text) {
   const p = document.createElement("p");
   p.textContent = text.replace(/\s+/g, " ").trim();
@@ -124,6 +141,10 @@ function drawStars() {
 if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
   document.getElementById("stars").style.display = "none";
 } else {
+  applyIosSafariFallback();
+  syncViewportUnit();
+  window.addEventListener("resize", syncViewportUnit);
+  window.addEventListener("orientationchange", syncViewportUnit);
   drawStars();
 }
 loadMessages();

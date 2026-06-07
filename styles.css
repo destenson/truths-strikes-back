@@ -16,7 +16,8 @@ body {
 .scene {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: calc(var(--app-vh, 1vh) * 100);
+  min-height: 100vh;
 }
 
 #stars {
@@ -29,7 +30,8 @@ body {
 .crawl-wrap {
   position: absolute;
   inset: 0;
-  perspective: 60vh;
+  perspective: calc(var(--app-vh, 1vh) * 60);
+  -webkit-perspective: calc(var(--app-vh, 1vh) * 60);
   /* Vanishing point ~25% down from the top, like the Star Wars crawl. */
   perspective-origin: 50% 25%;
   overflow: hidden;
@@ -41,12 +43,21 @@ body {
   mask-image: linear-gradient(to top, #000 45%, rgba(0, 0, 0, 0.25) 72%, transparent 92%);
 }
 
+html.ios-safari .crawl-wrap {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
 .crawl {
   width: min(92vw, 1100px);
   text-align: center;
   transform-origin: 50% 100%;
   animation: crawl 130s linear infinite;
   padding-top: 40vh;
+  transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
   /* Start off-screen at the bottom. */
 }
 
@@ -95,11 +106,11 @@ h1 {
    and recedes; the loop repeats from the bottom. */
 @keyframes crawl {
   from {
-    transform: rotateX(72deg) translateY(1360vh) translateZ(0);
+    transform: rotateX(72deg) translate3d(0, calc(var(--app-vh, 1vh) * 140), 0);
   }
 
   to {
-    transform: rotateX(72deg) translateY(-210vh) translateZ(-60vh);
+    transform: rotateX(72deg) translate3d(0, calc(var(--app-vh, 1vh) * -240), calc(var(--app-vh, 1vh) * -60));
   }
 }
 
