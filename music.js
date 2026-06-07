@@ -22,13 +22,50 @@ function midiToFrequency(midi) {
   return A4_FREQUENCY_HZ * Math.pow(2, (midi - A4_MIDI) / 12);
 }
 
-// TODO: add several melodies that play randomly. They should all sound ominous and dramatic, but different enough to be interesting over multiple loops.
-// Original brass melody as [beatOffset, midiNote, durationBeats] within the loop.
-const MELODY = [
-  [0, 62, 1], [1, 62, 1], [2, 65, 1], [3, 64, 1],
-  [4, 62, 1], [5, 57, 1], [6, 58, 2],
-  [8, 60, 1], [9, 60, 1], [10, 65, 1], [11, 64, 1],
-  [12, 62, 1], [13, 57, 1], [14, 62, 2],
+const DEBUG = false;
+
+// Brass melody variants with labels for runtime logging.
+const MELODIES = [
+  {
+    name: "Iron March",
+    weight: 4,
+    notes: [
+      [0, 62, 1], [1, 62, 1], [2, 65, 1], [3, 64, 1],
+      [4, 62, 1], [5, 57, 1], [6, 58, 2],
+      [8, 60, 1], [9, 60, 1], [10, 65, 1], [11, 64, 1],
+      [12, 62, 1], [13, 57, 1], [14, 62, 2],
+    ],
+  },
+  {
+    name: "Siege Climb",
+    weight: 3,
+    notes: [
+      [0, 62, 1], [1, 62, 1], [2, 65, 1], [3, 67, 1],
+      [4, 64, 1], [5, 60, 1], [6, 59, 2],
+      [8, 60, 1], [9, 63, 1], [10, 67, 1], [11, 65, 1],
+      [12, 64, 1], [13, 60, 1], [14, 62, 2],
+    ],
+  },
+  {
+    name: "Shadow Answer",
+    weight: 3,
+    notes: [
+      [0, 62, 1], [1, 60, 1], [2, 62, 1], [3, 65, 1],
+      [4, 64, 1], [5, 59, 1], [6, 57, 2],
+      [8, 58, 1], [9, 60, 1], [10, 63, 1], [11, 62, 1],
+      [12, 60, 1], [13, 57, 1], [14, 55, 2],
+    ],
+  },
+  {
+    name: "Ashen Signal",
+    weight: 2,
+    notes: [
+      [0, 62, 0.5], [0.5, 65, 0.5], [1, 67, 1], [2, 65, 1], [3, 64, 1],
+      [4, 62, 1], [5, 59, 1], [6, 60, 2],
+      [8, 60, 0.5], [8.5, 63, 0.5], [9, 65, 1], [10, 64, 1], [11, 62, 1],
+      [12, 60, 1], [13, 57, 1], [14, 62, 2],
+    ],
+  },
 ];
 
 // One bass root per bar, pulsed on every eighth note for march drive.
@@ -116,8 +153,37 @@ function playTimpani(ctx, destination, startTime) {
   osc.stop(startTime + 0.4);
 }
 
-function scheduleLoop(ctx, destination, loopStartTime) {
-  for (const [beat, midi, beats] of MELODY) {
+function pickNextMelody(lastMelodyIndex) {
+  if (MELODIES.length === 1) {
+    return { melody: MELODIES[0], index: 0 };
+  }
+
+  const candidates = [];
+  for (let i = 0; i < MELODIES.length; i++) {
+    if (i !== lastMelodyIndex) {
+      candidates.push(i);
+    }
+  }
+
+  let totalWeight = 0;
+  for (const candidate of candidates) {
+    totalWeight += MELODIES[candidate].weight;
+  }
+
+  let roll = Math.random() * totalWeight;
+  for (const candidate of candidates) {
+    roll -= MELODIES[candidate].weight;
+    if (roll <= 0) {
+      return { melody: MELODIES[candidate], index: candidate };
+    }
+  }
+
+  const fallback = candidates[candidates.length - 1];
+  return { melody: MELODIES[fallback], index: fallback };
+}
+
+function scheduleLoop(ctx, destination, loopStartTime, melody) {
+  for (const [beat, midi, beats] of melody.notes) {
     playBrass(
       ctx,
       destination,
@@ -163,7 +229,13 @@ function start(state) {
 
   state.timer = setInterval(() => {
     while (state.nextLoopTime < ctx.currentTime + SCHEDULE_AHEAD_SECONDS) {
-      scheduleLoop(ctx, master, state.nextLoopTime);
+      const nextMelody = pickNextMelody(state.lastMelodyIndex);
+      scheduleLoop(ctx, master, state.nextLoopTime, nextMelody.melody);
+      DEBUG && console.info(
+        `[music] loop ${state.loopCount + 1}: melody ${nextMelody.index + 1} (${nextMelody.melody.name})`,
+      );
+      state.lastMelodyIndex = nextMelody.index;
+      state.loopCount += 1;
       state.nextLoopTime += loopSeconds;
     }
   }, SCHEDULER_INTERVAL_MS);
@@ -181,7 +253,15 @@ function stop(state) {
 }
 
 function initMusic() {
-  const state = { ctx: null, destination: null, timer: null, nextLoopTime: 0, playing: false };
+  const state = {
+    ctx: null,
+    destination: null,
+    timer: null,
+    nextLoopTime: 0,
+    playing: false,
+    lastMelodyIndex: -1,
+    loopCount: 0,
+  };
 
   createToggleButton((button) => {
     if (state.playing) {
