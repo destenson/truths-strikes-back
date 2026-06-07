@@ -120,7 +120,7 @@ h1 {
     align-items: center;
     overflow: auto;
     padding: 2rem 1rem;
-    animation: none;
+    /* animation: none; */
     -webkit-mask-image: none;
     mask-image: none;
   }
